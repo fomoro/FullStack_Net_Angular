@@ -1,0 +1,40 @@
+// Database Markup Language (DBML) - DBClientes (Cavipetrol)
+// Importable directamente en dbdiagram.io
+
+Project DBClientes {
+  database_type: 'SQL Server 2019'
+  Note: 'Modelo de Datos para la Prueba Técnica Fullstack (.NET / Angular) - Cavipetrol'
+}
+
+Enum GeneroEnum {
+  M [note: 'Masculino']
+  F [note: 'Femenino']
+  O [note: 'Otro']
+}
+
+Enum EstadoEnum {
+  Activo
+  Inactivo
+  Pendiente
+}
+
+Table Clientes {
+  // Campos Obligatorios según la Especificación de la Prueba Técnica
+  IdCliente int [pk, increment, note: 'Clave Primaria Autoincremental (IDENTITY)']
+  Identificacion varchar(20) [not null, unique, note: 'Número de documento/cédula del cliente (Búsqueda por SP)']
+  Nombre nvarchar(100) [not null, note: 'Nombres del cliente']
+  Apellido nvarchar(100) [not null, note: 'Apellidos del cliente']
+  Email nvarchar(150) [not null, note: 'Correo electrónico institucional/personal']
+  FechaCreacion datetime [default: `getdate()`, note: 'Fecha y hora de registro inicial']
+  FechaActualizacion datetime [null, note: 'Fecha y hora de última modificación']
+
+  // Campos Extendidos (Valor Agregado para Dashboard & Analítica Demográfica)
+  Genero GeneroEnum [null, note: 'Permite calcular KPIs de Hombres/Mujeres']
+  FechaNacimiento date [null, note: 'Permite calcular rango de edad y segmento Niños/Adultos']
+  Estado EstadoEnum [default: 'Activo', note: 'Estado operativo de la cuenta']
+  Categoria varchar(30) [default: 'Estándar', note: 'Segmentación de negocio (VIP, Frecuente, Estándar)']
+
+  Indexes {
+    Identificacion [unique, name: 'IX_Clientes_Identificacion']
+  }
+}

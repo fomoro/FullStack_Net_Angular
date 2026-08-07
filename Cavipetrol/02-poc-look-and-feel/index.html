@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Cavipetrol | Gestor de Clientes</title>
+
+  <!-- Google Font: Inter -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Bootstrap 4.6 (CDN) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+  <!-- AdminLTE 3.2 CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css">
+  <!-- SweetAlert2 -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
+  <style>
+    /* Estética Apple Minimalist + Ionic Tab Bar Paradigm */
+    :root {
+      --apple-bg: #f5f5f7;
+      --apple-card-bg: #ffffff;
+      --apple-text-primary: #1d1d1f;
+      --apple-text-secondary: #86868b;
+      --apple-blue: #0071e3;
+      --apple-blue-hover: #0077ed;
+      --apple-green: #34c759;
+      --apple-red: #ff3b30;
+      --apple-radius: 16px;
+      --apple-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+      --apple-shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.08);
+      --tab-bar-height: 64px;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--apple-bg);
+      color: var(--apple-text-primary);
+      -webkit-font-smoothing: antialiased;
+      padding-bottom: var(--tab-bar-height);
+    }
+
+    @media (min-width: 768px) {
+      body {
+        padding-bottom: 0;
+      }
+    }
+
+    .content-wrapper {
+      background-color: var(--apple-bg) !important;
+      padding: 0.75rem 0.5rem;
+    }
+
+    @media (min-width: 576px) {
+      .content-wrapper {
+        padding: 1.5rem 1rem;
+      }
+    }
+
+    .navbar-apple {
+      background-color: rgba(255, 255, 255, 0.85) !important;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+      padding: 0.5rem 1rem;
+    }
+
+    .card-apple {
+      background: var(--apple-card-bg);
+      border: 1px solid rgba(0, 0, 0, 0.06);
+      border-radius: var(--apple-radius);
+      box-shadow: var(--apple-shadow);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      overflow: hidden;
+      margin-bottom: 1rem;
+    }
+
+    .card-apple .card-header {
+      background: transparent;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+      padding: 0.85rem 1.15rem;
+    }
+
+    .card-apple .card-title {
+      font-weight: 600;
+      font-size: 1rem;
+      color: var(--apple-text-primary);
+      letter-spacing: -0.01em;
+    }
+
+    .hero-apple {
+      background: #ffffff;
+      border: 1px solid rgba(0, 0, 0, 0.06);
+      border-radius: var(--apple-radius);
+      padding: 1.15rem 1rem;
+      margin-bottom: 1rem;
+      box-shadow: var(--apple-shadow);
+    }
+
+    @media (min-width: 768px) {
+      .hero-apple {
+        padding: 2rem;
+        margin-bottom: 1.5rem;
+      }
+    }
+
+    .hero-apple h1 {
+      font-weight: 700;
+      font-size: 1.25rem;
+      letter-spacing: -0.02em;
+      color: var(--apple-text-primary);
+    }
+
+    @media (min-width: 768px) {
+      .hero-apple h1 {
+        font-size: 1.8rem;
+      }
+    }
+
+    .hero-apple p {
+      color: var(--apple-text-secondary);
+      font-size: 0.85rem;
+      margin-bottom: 0;
+    }
+
+    /* Apple Metric Cards */
+    .metric-card {
+      background: #ffffff;
+      border: 1px solid rgba(0, 0, 0, 0.05);
+      border-radius: 14px;
+      padding: 0.85rem 0.75rem;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.03);
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .metric-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--apple-text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      white-space: nowrap;
+    }
+
+    .metric-value {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--apple-text-primary);
+      letter-spacing: -0.03em;
+      margin: 0.15rem 0;
+    }
+
+    @media (min-width: 576px) {
+      .metric-value {
+        font-size: 1.75rem;
+      }
+    }
+
+    .metric-badge {
+      display: inline-block;
+      font-size: 0.68rem;
+      font-weight: 600;
+      padding: 0.15rem 0.45rem;
+      border-radius: 20px;
+      white-space: nowrap;
+      width: fit-content;
+    }
+
+    .badge-apple-blue { background: rgba(0, 113, 227, 0.1); color: var(--apple-blue); }
+    .badge-apple-green { background: rgba(52, 199, 89, 0.1); color: var(--apple-green); }
+    .badge-apple-purple { background: rgba(175, 82, 222, 0.1); color: #af52de; }
+
+    .input-apple {
+      border-radius: 12px !important;
+      border: 1px solid rgba(0, 0, 0, 0.12);
+      padding: 0.6rem 0.8rem;
+      font-size: 0.9rem;
+      background-color: #fafafa;
+    }
+
+    .input-apple:focus {
+      background-color: #ffffff;
+      border-color: var(--apple-blue);
+      box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.15);
+    }
+
+    .btn-apple {
+      background-color: var(--apple-blue);
+      color: #ffffff;
+      border-radius: 12px !important;
+      font-weight: 500;
+      padding: 0.55rem 1.2rem;
+      border: none;
+    }
+
+    .btn-pill-demo {
+      border-radius: 20px;
+      font-size: 0.725rem;
+      font-weight: 500;
+      padding: 0.25rem 0.65rem;
+      border: 1px solid rgba(0,0,0,0.1);
+      background: #ffffff;
+      color: var(--apple-text-primary);
+    }
+
+    .overlay-apple {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      border-radius: var(--apple-radius);
+    }
+
+    .chart-container {
+      position: relative;
+      height: 190px;
+      width: 100%;
+    }
+
+    /* BARRA DE NAVEGACIÓN INFERIOR (BOTTOM TAB BAR - PROPUESTA 1 IONIC NATIVE STYLE) */
+    .apple-tab-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: var(--tab-bar-height);
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(0, 0, 0, 0.08);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      z-index: 1050;
+      box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.04);
+    }
+
+    .tab-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--apple-text-secondary);
+      font-size: 0.7rem;
+      font-weight: 500;
+      text-decoration: none !important;
+      background: none;
+      border: none;
+      padding: 0.4rem 0.8rem;
+      width: 33.33%;
+      transition: all 0.2s ease;
+    }
+
+    .tab-item i {
+      font-size: 1.15rem;
+      margin-bottom: 0.2rem;
+    }
+
+    .tab-item.active {
+      color: var(--apple-blue);
+      font-weight: 600;
+    }
+
+    /* Comportamiento de Pestañas en Móvil vs Escritorio */
+    @media (max-width: 767.98px) {
+      .tab-pane-mobile {
+        display: none;
+      }
+      .tab-pane-mobile.active {
+        display: block;
+        animation: fadeInTab 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+    }
+
+    @media (min-width: 768px) {
+      .apple-tab-bar {
+        display: none !important;
+      }
+      .tab-pane-mobile {
+        display: block !important;
+      }
+    }
+
+    @keyframes fadeInTab {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body class="hold-transition layout-top-nav">
+<div class="wrapper">
+
+  <!-- Navbar Estilo Apple -->
+  <nav class="main-header navbar navbar-expand navbar-light navbar-apple sticky-top">
+    <div class="container px-2 px-sm-3">
+      <a href="#" class="navbar-brand d-flex align-items-center m-0">
+        <i class="fas fa-layer-group text-primary mr-2"></i>
+        <span class="brand-text font-weight-bold text-dark" style="letter-spacing: -0.02em;">CAVIPETROL</span>
+        <span class="text-xs text-muted d-none d-sm-inline ml-2">| Gestor</span>
+      </a>
+
+      <div class="ml-auto">
+        <span class="badge badge-apple-blue py-1 px-2 text-xs">
+          <i class="fas fa-mobile-alt mr-1"></i> Ionic Tab-Bar Ready
+        </span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Content Wrapper -->
+  <div class="content-wrapper">
+    <div class="container px-2 px-sm-3">
+
+      <!-- HERO SECTION MINIMALISTA -->
+      <div class="hero-apple">
+        <div class="row align-items-center">
+          <div class="col-md-8">
+            <h1>Expedientes & Analítica</h1>
+            <p class="mt-1">Consulta inteligente de titulares y monitoreo de la base de datos de afiliados.</p>
+          </div>
+          <div class="col-md-4 text-md-right mt-2 mt-md-0">
+            <button class="btn btn-sm btn-pill-demo w-100 w-md-auto" onclick="demoSearch('12345678')">
+              <i class="fas fa-bolt text-warning mr-1"></i> Cliente Demo 12345678
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECCIÓN DE KPIS GERENCIALES (VISIBLES EN DASHBOARD GENERAL) -->
+      <div class="row mb-3">
+        <div class="col-6 col-md-3 mb-2 mb-md-0">
+          <div class="metric-card">
+            <span class="metric-label">Base Titulares</span>
+            <div class="metric-value">1,248</div>
+            <span class="metric-badge badge-apple-blue"><i class="fas fa-users mr-1"></i> Totales</span>
+          </div>
+        </div>
+
+        <div class="col-6 col-md-3 mb-2 mb-md-0">
+          <div class="metric-card">
+            <span class="metric-label">Cuentas Activas</span>
+            <div class="metric-value">1,180</div>
+            <span class="metric-badge badge-apple-green"><i class="fas fa-chart-line mr-1"></i> 94.5% Activo</span>
+          </div>
+        </div>
+
+        <div class="col-6 col-md-3 mb-2 mb-md-0">
+          <div class="metric-card">
+            <span class="metric-label">Hombres</span>
+            <div class="metric-value">648</div>
+            <span class="metric-badge badge-apple-blue"><i class="fas fa-male mr-1"></i> 52.0% Total</span>
+          </div>
+        </div>
+
+        <div class="col-6 col-md-3 mb-2 mb-md-0">
+          <div class="metric-card">
+            <span class="metric-label">Mujeres</span>
+            <div class="metric-value">600</div>
+            <span class="metric-badge badge-apple-purple"><i class="fas fa-female mr-1"></i> 48.0% Total</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- CONTENEDOR PRINCIPAL MULTI-PESTAÑA (PROPUESTA 1: ZERO SCROLL EN MÓVIL) -->
+      <div class="row">
+
+        <!-- PESTAÑA 1: BÚSQUEDA Y FICHA DE CLIENTE -->
+        <div class="col-lg-6 col-12 tab-pane-mobile active" id="tab-busqueda">
+          
+          <!-- TARJETA DE BÚSQUEDA -->
+          <div class="card-apple position-relative">
+            <div class="card-header d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center">
+              <h3 class="card-title mb-1 mb-sm-0"><i class="fas fa-search text-muted mr-2"></i>Consulta por Documento</h3>
+              <span class="text-xs text-muted">GET /api/clientes/{id}</span>
+            </div>
+
+            <div class="card-body p-3 p-sm-4">
+              <form id="searchForm" onsubmit="handleSearch(event)">
+                <div class="form-group mb-3">
+                  <label for="identificacionInput" class="text-xs text-uppercase text-muted font-weight-bold">Número de Identificación:</label>
+                  <div class="d-flex flex-column flex-sm-row">
+                    <input type="text" class="form-control input-apple flex-grow-1" id="identificacionInput" placeholder="Ej: 12345678" required autocomplete="off">
+                    <button class="btn btn-apple ml-0 ml-sm-2 mt-2 mt-sm-0" type="submit" id="btnBuscar">
+                      Buscar
+                    </button>
+                  </div>
+                </div>
+              </form>
+
+              <!-- MOCK TESTS DE DEMO -->
+              <div class="pt-1">
+                <span class="text-xs text-muted d-block mb-1">Pruebas rápidas:</span>
+                <div class="d-flex flex-wrap gap-1">
+                  <button class="btn btn-pill-demo mr-1 mb-1" onclick="demoSearch('12345678')">
+                    <i class="fas fa-user-check text-success mr-1"></i> 12345678 (Carlos)
+                  </button>
+                  <button class="btn btn-pill-demo mr-1 mb-1" onclick="demoSearch('10987654')">
+                    <i class="fas fa-user-check text-success mr-1"></i> 10987654 (María)
+                  </button>
+                  <button class="btn btn-pill-demo text-danger mb-1" onclick="demoSearch('99999999')">
+                    <i class="fas fa-exclamation-circle mr-1"></i> 404 Error
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Overlay de Carga -->
+            <div class="overlay-apple d-none" id="searchLoadingOverlay">
+              <div class="text-center">
+                <div class="spinner-border text-primary" role="status" style="width: 2rem; height: 2rem;"></div>
+                <p class="text-xs text-muted mt-2 mb-0 font-weight-medium">Ejecutando Stored Procedure...</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- TARJETA DE RESULTADO: FICHA 360° -->
+          <div class="card-apple d-none border-success" id="cardResultSuccess">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+              <h3 class="card-title text-success mb-0">
+                <i class="fas fa-check-circle mr-2"></i>Expediente de Titular
+              </h3>
+              <span class="badge badge-apple-green" id="resCategoria">Cliente VIP</span>
+            </div>
+
+            <div class="card-body p-3 p-sm-4">
+              <div class="row align-items-center">
+                <div class="col-sm-4 text-center mb-3 mb-sm-0 border-sm-right">
+                  <div class="avatar-wrapper mb-2">
+                    <i class="fas fa-user-circle fa-4x text-muted"></i>
+                  </div>
+                  <h5 class="font-weight-bold text-dark mb-0" id="resNombreCompleto">Carlos Mendoza</h5>
+                  <span class="text-xs text-muted" id="resIdCliente">ID: 101</span>
+                </div>
+
+                <div class="col-sm-8 pl-sm-4">
+                  <div class="mb-2">
+                    <span class="text-xs text-muted d-block">Documento de Identidad</span>
+                    <strong class="text-dark font-weight-semibold" id="resIdentificacion">12345678</strong>
+                  </div>
+                  <div class="mb-2">
+                    <span class="text-xs text-muted d-block">Correo Electrónico</span>
+                    <span class="text-primary font-weight-medium text-break" id="resEmail">carlos.mendoza@cavipetrol.com</span>
+                  </div>
+                  <div class="row pt-1">
+                    <div class="col-6">
+                      <span class="text-xs text-muted d-block">Fecha Registro</span>
+                      <small class="text-dark" id="resFechaCreacion">2024-01-15</small>
+                    </div>
+                    <div class="col-6">
+                      <span class="text-xs text-muted d-block">Actualización</span>
+                      <small class="text-dark" id="resFechaActualizacion">2026-02-01</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card-footer bg-light border-0 p-2 text-right">
+              <button class="btn btn-sm btn-pill-demo" onclick="resetSearch()"><i class="fas fa-redo mr-1"></i> Limpiar</button>
+            </div>
+          </div>
+
+          <!-- TARJETA DE ERROR 404 -->
+          <div class="card-apple d-none border-danger" id="cardResultError">
+            <div class="card-header bg-white">
+              <h3 class="card-title text-danger mb-0"><i class="fas fa-exclamation-triangle mr-2"></i>Titular No Registrado (404)</h3>
+            </div>
+            <div class="card-body p-3 p-sm-4 text-center">
+              <i class="fas fa-user-slash fa-3x text-muted mb-3"></i>
+              <h5 class="font-weight-bold text-dark">Documento No Encontrado</h5>
+              <p class="text-muted text-sm mb-3">No existe ningún registro asociado a la identificación <strong id="errIdentificacion">99999999</strong>.</p>
+              <div class="p-2 bg-light rounded text-xs text-muted">
+                <i class="fas fa-info-circle mr-1"></i> El Stored Procedure <code>sp_ObtenerClientePorIdentificacion</code> retornó cero registros.
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- PESTAÑA 2: DASHBOARD ANALÍTICO (GRÁFICOS) -->
+        <div class="col-lg-6 col-12 tab-pane-mobile" id="tab-analitica">
+
+          <!-- GRÁFICO 1: DEMOGRAFÍA DE GÉNERO -->
+          <div class="card-apple mb-3">
+            <div class="card-header bg-white">
+              <h3 class="card-title mb-0"><i class="fas fa-chart-pie text-muted mr-2"></i>Distribución por Género</h3>
+            </div>
+            <div class="card-body p-3">
+              <div class="chart-container">
+                <canvas id="chartDemografia"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- GRÁFICO 2: ESTADO OPERATIVO DE CUENTAS -->
+          <div class="card-apple">
+            <div class="card-header bg-white">
+              <h3 class="card-title mb-0"><i class="fas fa-chart-bar text-muted mr-2"></i>Estado Operativo de Cuentas</h3>
+            </div>
+            <div class="card-body p-3">
+              <div class="chart-container">
+                <canvas id="chartEstados"></canvas>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- PESTAÑA 3: DIRECTORIO GENERAL DE CLIENTES -->
+        <div class="col-12 tab-pane-mobile" id="tab-directorio">
+          <div class="card-apple">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+              <h3 class="card-title mb-0"><i class="fas fa-address-book text-muted mr-2"></i>Directorio General</h3>
+              <span class="badge badge-apple-blue">Vista Muestra</span>
+            </div>
+            <div class="card-body p-0 table-responsive">
+              <table class="table table-apple table-hover mb-0">
+                <thead>
+                  <tr>
+                    <th class="pl-3">Identificación</th>
+                    <th>Nombre Completo</th>
+                    <th class="d-none d-sm-table-cell">Email</th>
+                    <th>Estado</th>
+                    <th class="text-right pr-3">Acción</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="pl-3 font-weight-bold">12345678</td>
+                    <td>Carlos Mendoza</td>
+                    <td class="text-primary d-none d-sm-table-cell">carlos.mendoza@cavipetrol.com</td>
+                    <td><span class="badge badge-success">Activo</span></td>
+                    <td class="text-right pr-3">
+                      <button class="btn btn-xs btn-pill-demo text-primary" onclick="demoSearchFromDirectory('12345678')">
+                        <i class="fas fa-eye mr-1"></i> Ver
+                      </button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="pl-3 font-weight-bold">10987654</td>
+                    <td>María F. Gómez</td>
+                    <td class="text-primary d-none d-sm-table-cell">maria.gomez@cavipetrol.com</td>
+                    <td><span class="badge badge-success">Activo</span></td>
+                    <td class="text-right pr-3">
+                      <button class="btn btn-xs btn-pill-demo text-primary" onclick="demoSearchFromDirectory('10987654')">
+                        <i class="fas fa-eye mr-1"></i> Ver
+                      </button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="pl-3 font-weight-bold">11223344</td>
+                    <td>Juan P. Martínez</td>
+                    <td class="text-primary d-none d-sm-table-cell">juan.martinez@cavipetrol.com</td>
+                    <td><span class="badge badge-success">Activo</span></td>
+                    <td class="text-right pr-3">
+                      <button class="btn btn-xs btn-pill-demo text-primary" onclick="demoSearchFromDirectory('11223344')">
+                        <i class="fas fa-eye mr-1"></i> Ver
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- NAVEGACIÓN INFERIOR DE PESTAÑAS (IONIC TAB BAR NATIVE PARADIGM) -->
+  <div class="apple-tab-bar">
+    <button class="tab-item active" onclick="switchTab('tab-busqueda', this)">
+      <i class="fas fa-search"></i>
+      <span>Búsqueda</span>
+    </button>
+    <button class="tab-item" onclick="switchTab('tab-analitica', this)">
+      <i class="fas fa-chart-pie"></i>
+      <span>Analítica</span>
+    </button>
+    <button class="tab-item" onclick="switchTab('tab-directorio', this)">
+      <i class="fas fa-address-book"></i>
+      <span>Directorio</span>
+    </button>
+  </div>
+
+  <!-- Footer Minimalista (Escritorio) -->
+  <footer class="text-center py-4 text-xs text-muted border-top bg-white mt-3 d-none d-md-block">
+    <strong>Cavipetrol</strong> &copy; 2026 | Arquitectura Data-First diseñada para Sr. Wolfan.
+  </footer>
+</div>
+
+<!-- SCRIPTS (CDN) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+  const mockClients = {
+    '12345678': {
+      idCliente: 101,
+      identificacion: '12345678',
+      nombre: 'Carlos',
+      apellido: 'Mendoza',
+      email: 'carlos.mendoza@cavipetrol.com',
+      fechaCreacion: '2024-01-15',
+      fechaActualizacion: '2026-02-01',
+      categoria: 'Cliente VIP'
+    },
+    '10987654': {
+      idCliente: 102,
+      identificacion: '10987654',
+      nombre: 'María Fernanda',
+      apellido: 'Gómez',
+      email: 'maria.gomez@cavipetrol.com',
+      fechaCreacion: '2023-11-20',
+      fechaActualizacion: '2026-01-10',
+      categoria: 'Cliente Frecuente'
+    },
+    '11223344': {
+      idCliente: 103,
+      identificacion: '11223344',
+      nombre: 'Juan Pablo',
+      apellido: 'Martínez',
+      email: 'juan.martinez@cavipetrol.com',
+      fechaCreacion: '2024-05-10',
+      fechaActualizacion: '2026-01-15',
+      categoria: 'Cliente Estándar'
+    }
+  };
+
+  let chartDona, chartBarras;
+
+  document.addEventListener('DOMContentLoaded', function() {
+    initAppleCharts();
+  });
+
+  // Conmutador de Pestañas Móviles
+  function switchTab(tabId, element) {
+    if(window.innerWidth < 768) {
+      document.querySelectorAll('.tab-pane-mobile').forEach(pane => pane.classList.remove('active'));
+      document.querySelectorAll('.tab-item').forEach(btn => btn.classList.remove('active'));
+
+      const targetPane = document.getElementById(tabId);
+      if(targetPane) targetPane.classList.add('active');
+
+      if(element) element.classList.add('active');
+
+      // Re-renderizar gráficos al activar pestaña analítica
+      if(tabId === 'tab-analitica' && chartDona && chartBarras) {
+        setTimeout(() => {
+          chartDona.resize();
+          chartBarras.resize();
+        }, 100);
+      }
+    }
+  }
+
+  function demoSearchFromDirectory(identificacion) {
+    switchTab('tab-busqueda', document.querySelectorAll('.tab-item')[0]);
+    demoSearch(identificacion);
+  }
+
+  function initAppleCharts() {
+    const ctxDona = document.getElementById('chartDemografia').getContext('2d');
+    chartDona = new Chart(ctxDona, {
+      type: 'doughnut',
+      data: {
+        labels: ['Hombres (52%)', 'Mujeres (48%)'],
+        datasets: [{
+          data: [648, 600],
+          backgroundColor: ['#0071e3', '#af52de'],
+          borderWidth: 0
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutoutPercentage: 70,
+        legend: { position: 'bottom', labels: { boxWidth: 10, fontSize: 11, padding: 10 } }
+      }
+    });
+
+    const ctxBarras = document.getElementById('chartEstados').getContext('2d');
+    chartBarras = new Chart(ctxBarras, {
+      type: 'bar',
+      data: {
+        labels: ['Activos', 'Inactivos', 'Validación'],
+        datasets: [{
+          label: 'Titulares',
+          data: [1180, 48, 20],
+          backgroundColor: ['#34c759', '#86868b', '#ff9500'],
+          borderRadius: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        legend: { display: false },
+        scales: {
+          yAxes: [{ ticks: { beginAtZero: true }, gridLines: { color: 'rgba(0,0,0,0.04)' } }],
+          xAxes: [{ gridLines: { display: false } }]
+        }
+      }
+    });
+  }
+
+  function handleSearch(event) {
+    if(event) event.preventDefault();
+    const idValue = document.getElementById('identificacionInput').value.trim();
+    if(!idValue) return;
+
+    document.getElementById('searchLoadingOverlay').classList.remove('d-none');
+    document.getElementById('cardResultSuccess').classList.add('d-none');
+    document.getElementById('cardResultError').classList.add('d-none');
+
+    setTimeout(() => {
+      document.getElementById('searchLoadingOverlay').classList.add('d-none');
+      
+      if(mockClients[idValue]) {
+        showSuccess(mockClients[idValue]);
+        Swal.fire({
+          icon: 'success',
+          title: 'Expediente Consultado',
+          text: `Titular ${mockClients[idValue].nombre} ${mockClients[idValue].apellido}`,
+          timer: 1500,
+          showConfirmButton: false,
+          toast: true,
+          position: 'top-end'
+        });
+      } else {
+        showError(idValue);
+        Swal.fire({
+          icon: 'error',
+          title: 'HTTP 404 - No Encontrado',
+          text: `No existe ningún registro con la cédula ${idValue}.`,
+          confirmButtonColor: '#ff3b30'
+        });
+      }
+    }, 500);
+  }
+
+  function showSuccess(data) {
+    document.getElementById('resNombreCompleto').textContent = `${data.nombre} ${data.apellido}`;
+    document.getElementById('resIdCliente').textContent = `ID Sistema: ${data.idCliente}`;
+    document.getElementById('resIdentificacion').textContent = data.identificacion;
+    document.getElementById('resEmail').textContent = data.email;
+    document.getElementById('resFechaCreacion').textContent = data.fechaCreacion;
+    document.getElementById('resFechaActualizacion').textContent = data.fechaActualizacion;
+    document.getElementById('resCategoria').textContent = data.categoria;
+
+    document.getElementById('cardResultSuccess').classList.remove('d-none');
+  }
+
+  function showError(identificacion) {
+    document.getElementById('errIdentificacion').textContent = identificacion;
+    document.getElementById('cardResultError').classList.remove('d-none');
+  }
+
+  function demoSearch(identificacion) {
+    document.getElementById('identificacionInput').value = identificacion;
+    handleSearch(null);
+  }
+
+  function resetSearch() {
+    document.getElementById('identificacionInput').value = '';
+    document.getElementById('cardResultSuccess').classList.add('d-none');
+    document.getElementById('cardResultError').classList.add('d-none');
+    document.getElementById('identificacionInput').focus();
+  }
+</script>
+</body>
+</html>
