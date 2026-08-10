@@ -12,6 +12,10 @@ export class ClienteService {
   private http = inject(HttpClient);
   private baseUrl = `${environment.apiUrl}/clientes`;
 
+  obtenerTodos(): Observable<ApiResponse<ClienteDto[]>> {
+    return this.http.get<ApiResponse<ClienteDto[]>>(this.baseUrl);
+  }
+
   obtenerPorIdentificacion(identificacion: string): Observable<ApiResponse<ClienteDto>> {
     return this.http.get<ApiResponse<ClienteDto>>(`${this.baseUrl}/${identificacion.trim()}`);
   }

@@ -1,215 +1,387 @@
-<ion-header class="ion-no-border">
-  <ion-toolbar class="header-toolbar">
-    <ion-title class="header-title">
-      <span class="brand-badge">Cavipetrol</span> Gestor de Clientes
-    </ion-title>
+<ion-header class="app-header ion-no-border">
+  <ion-toolbar class="navbar-apple">
+    <div class="page-shell navbar-content">
+      <div class="brand" aria-label="Cavipetrol Gestor">
+        <ion-icon name="layers-outline" aria-hidden="true"></ion-icon>
+        <strong>CAVIPETROL</strong>
+        <span class="brand-context">| Gestor</span>
+      </div>
+
+      <span class="ready-badge">
+        <ion-icon name="phone-portrait-outline" aria-hidden="true"></ion-icon>
+        Ionic Tab-Bar Ready
+      </span>
+    </div>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding content-background">
-  <div class="search-container">
-    
-    <!-- PESTAÑA 1: BÚSQUEDA Y FICHA 360° -->
-    @if (tabActiva === 'busqueda') {
-      <div class="hero-section">
-        <h1 class="hero-title">Consulta de Clientes 360°</h1>
-        <p class="hero-subtitle">Consulte la ficha del cliente en tiempo real consumiendo el Stored Procedure .NET</p>
-      </div>
-
-      <!-- Barra de Búsqueda Móvil Ionic -->
-      <div class="searchbar-box">
-        <ion-searchbar
-          [(ngModel)]="identificacion"
-          (keyup.enter)="buscarCliente()"
-          placeholder="Ingrese Cédula (Ej: 12345678, 10987654)"
-          type="text"
-          inputmode="numeric"
-          animated="true"
-          show-clear-button="always"
-          class="custom-searchbar">
-        </ion-searchbar>
-        <ion-button (click)="buscarCliente()" [disabled]="cargando" class="btn-search" shape="round">
-          <ion-icon slot="start" name="search-outline"></ion-icon>
-          Buscar
-        </ion-button>
-      </div>
-
-      <!-- Indicador de Carga -->
-      @if (cargando) {
-        <div class="state-card loading-state">
-          <ion-spinner name="crescent" color="primary"></ion-spinner>
-          <p>Ejecutando sp_ObtenerClientePorIdentificacion en API .NET...</p>
+<ion-content class="content-background">
+  <main class="content-wrapper">
+    <div class="page-shell">
+      <section class="hero-apple">
+        <div>
+          <h1>Expedientes &amp; Analítica</h1>
+          <p>Consulta inteligente de titulares y monitoreo de la base de datos de afiliados.</p>
         </div>
-      }
 
-      <!-- Alerta de Error / No Encontrado (404) -->
-      @if (!cargando && errorMensaje) {
-        <div class="state-card error-state">
-          <ion-icon name="alert-circle-outline" class="state-icon error-icon"></ion-icon>
-          <h3>Titular No Registrado (404)</h3>
-          <p>{{ errorMensaje }}</p>
-        </div>
-      }
+        <button class="pill-button demo-button" type="button" (click)="buscarDemo('12345678')">
+          <ion-icon name="flash-outline" aria-hidden="true"></ion-icon>
+          Cliente Demo 12345678
+        </button>
+      </section>
 
-      <!-- Ficha 360° del Cliente (Encontrado) -->
-      @if (!cargando && cliente) {
-        <ion-card class="client-card">
-          <ion-card-header>
-            <div class="card-header-top">
-              <ion-badge [color]="cliente.categoria === 'VIP' ? 'warning' : (cliente.categoria === 'Frecuente' ? 'secondary' : 'tertiary')" class="category-badge">
-                {{ cliente.categoria }}
-              </ion-badge>
-              <ion-badge [color]="cliente.estado === 'Activo' ? 'success' : 'medium'" class="status-badge">
-                <ion-icon name="checkmark-circle-outline"></ion-icon> {{ cliente.estado }}
-              </ion-badge>
+      <section class="metrics-grid" aria-label="Indicadores gerenciales">
+        <article class="metric-card">
+          <span class="metric-label">Base Titulares</span>
+          <strong class="metric-value">{{ analitica.total | number:'1.0-0' }}</strong>
+          <span class="metric-badge badge-blue">
+            <ion-icon name="people-outline" aria-hidden="true"></ion-icon>
+            Totales
+          </span>
+        </article>
+
+        <article class="metric-card">
+          <span class="metric-label">Cuentas Activas</span>
+          <strong class="metric-value">{{ analitica.activos | number:'1.0-0' }}</strong>
+          <span class="metric-badge badge-green">
+            <ion-icon name="trending-up-outline" aria-hidden="true"></ion-icon>
+            {{ analitica.porcentajeActivos | number:'1.1-1' }}% Activo
+          </span>
+        </article>
+
+        <article class="metric-card">
+          <span class="metric-label">Hombres</span>
+          <strong class="metric-value">{{ analitica.hombres | number:'1.0-0' }}</strong>
+          <span class="metric-badge badge-blue">
+            <ion-icon name="male-outline" aria-hidden="true"></ion-icon>
+            {{ analitica.porcentajeHombres | number:'1.1-1' }}% Total
+          </span>
+        </article>
+
+        <article class="metric-card">
+          <span class="metric-label">Mujeres</span>
+          <strong class="metric-value">{{ analitica.mujeres | number:'1.0-0' }}</strong>
+          <span class="metric-badge badge-purple">
+            <ion-icon name="female-outline" aria-hidden="true"></ion-icon>
+            {{ analitica.porcentajeMujeres | number:'1.1-1' }}% Total
+          </span>
+        </article>
+      </section>
+
+      <div class="workspace-grid">
+        <section class="tab-pane search-pane" [class.active]="tabActiva === 'busqueda'">
+          <article class="card-apple search-card">
+            <header class="card-header responsive-header">
+              <h2>
+                <ion-icon name="search-outline" aria-hidden="true"></ion-icon>
+                Consulta por Documento
+              </h2>
+              <span>GET /api/clientes/{{ '{' }}id{{ '}' }}</span>
+            </header>
+
+            <div class="card-body">
+              <form (ngSubmit)="buscarCliente()">
+                <label for="identificacionInput">Número de Identificación:</label>
+                <div class="search-controls">
+                  <input
+                    id="identificacionInput"
+                    name="identificacion"
+                    type="text"
+                    inputmode="numeric"
+                    autocomplete="off"
+                    placeholder="Ej: 12345678"
+                    [(ngModel)]="identificacion"
+                    [disabled]="cargando"
+                    required>
+                  <button class="primary-button" type="submit" [disabled]="cargando">
+                    Buscar
+                  </button>
+                </div>
+              </form>
+
+              <div class="quick-tests">
+                <span>Pruebas rápidas:</span>
+                <div class="quick-buttons">
+                  <button class="pill-button" type="button" (click)="buscarDemo('12345678')">
+                    <ion-icon class="success-icon" name="person-add-outline" aria-hidden="true"></ion-icon>
+                    12345678 (Carlos)
+                  </button>
+                  <button class="pill-button" type="button" (click)="buscarDemo('10987654')">
+                    <ion-icon class="success-icon" name="person-add-outline" aria-hidden="true"></ion-icon>
+                    10987654 (María)
+                  </button>
+                  <button class="pill-button danger-text" type="button" (click)="buscarDemo('99999999')">
+                    <ion-icon name="alert-circle-outline" aria-hidden="true"></ion-icon>
+                    404 Error
+                  </button>
+                </div>
+              </div>
             </div>
-            <ion-card-title class="client-name">{{ cliente.nombre }} {{ cliente.apellido }}</ion-card-title>
-            <ion-card-subtitle class="client-id">
-              <ion-icon name="id-card-outline"></ion-icon> Identificación: <strong>{{ cliente.identificacion }}</strong>
-            </ion-card-subtitle>
-          </ion-card-header>
 
-          <ion-card-content>
-            <ion-list lines="full" class="info-list">
-              <ion-item>
-                <ion-icon name="mail-outline" slot="start" color="primary"></ion-icon>
-                <ion-label>
-                  <h3>Correo Electrónico</h3>
-                  <p>{{ cliente.email }}</p>
-                </ion-label>
-              </ion-item>
+            @if (cargando) {
+              <div class="loading-overlay" role="status" aria-live="polite">
+                <ion-spinner name="crescent"></ion-spinner>
+                <span>Ejecutando Stored Procedure...</span>
+              </div>
+            }
+          </article>
 
-              <ion-item>
-                <ion-icon name="person-outline" slot="start" color="secondary"></ion-icon>
-                <ion-label>
-                  <h3>Género / Demografía</h3>
-                  <p>{{ cliente.genero === 'M' ? 'Masculino' : (cliente.genero === 'F' ? 'Femenino' : 'No Especificado') }}</p>
-                </ion-label>
-              </ion-item>
+          @if (!cargando && cliente) {
+            <article class="card-apple result-card success-card">
+              <header class="card-header result-header">
+                <h2 class="success-text">
+                  <ion-icon name="checkmark-circle-outline" aria-hidden="true"></ion-icon>
+                  Expediente de Titular
+                </h2>
+                <span class="metric-badge badge-green">Cliente {{ cliente.categoria }}</span>
+              </header>
 
-              @if (cliente.fechaNacimiento) {
-                <ion-item>
-                  <ion-icon name="calendar-outline" slot="start" color="tertiary"></ion-icon>
-                  <ion-label>
-                    <h3>Fecha Nacimiento</h3>
-                    <p>{{ cliente.fechaNacimiento | date:'dd/MM/yyyy' }}</p>
-                  </ion-label>
-                </ion-item>
-              }
+              <div class="card-body client-profile">
+                <div class="client-identity">
+                  <ion-icon name="person-circle-outline" aria-hidden="true"></ion-icon>
+                  <h3>{{ cliente.nombre }} {{ cliente.apellido }}</h3>
+                  <span>ID Sistema: {{ cliente.idCliente }}</span>
+                </div>
 
-              <ion-item>
-                <ion-icon name="calendar-outline" slot="start" color="medium"></ion-icon>
-                <ion-label>
-                  <h3>Fecha Registro Base de Datos</h3>
-                  <p>{{ cliente.fechaCreacion | date:'dd/MM/yyyy HH:mm' }}</p>
-                </ion-label>
-              </ion-item>
-            </ion-list>
+                <dl class="client-details">
+                  <div>
+                    <dt>Documento de Identidad</dt>
+                    <dd>{{ cliente.identificacion }}</dd>
+                  </div>
+                  <div>
+                    <dt>Correo Electrónico</dt>
+                    <dd class="email-value">{{ cliente.email }}</dd>
+                  </div>
+                  <div class="date-grid">
+                    <div>
+                      <dt>Fecha Registro</dt>
+                      <dd>{{ cliente.fechaCreacion | date:'yyyy-MM-dd' }}</dd>
+                    </div>
+                    <div>
+                      <dt>Actualización</dt>
+                      <dd>
+                        @if (cliente.fechaActualizacion) {
+                          {{ cliente.fechaActualizacion | date:'yyyy-MM-dd' }}
+                        } @else {
+                          Sin actualización
+                        }
+                      </dd>
+                    </div>
+                  </div>
+                </dl>
+              </div>
 
-            <div class="card-footer">
-              <ion-note color="medium">ID Registro BD: #{{ cliente.idCliente }}</ion-note>
-              <ion-button fill="clear" size="small" (click)="limpiar()">Limpiar Consulta</ion-button>
-            </div>
-          </ion-card-content>
-        </ion-card>
-      }
-    }
-
-    <!-- PESTAÑA 2: ANALÍTICA DEMOGRÁFICA -->
-    @if (tabActiva === 'analitica') {
-      <div class="hero-section">
-        <h1 class="hero-title">Tablero Analítico 360°</h1>
-        <p class="hero-subtitle">Métricas demográficas y estado operativo de la base de datos DBClientes</p>
-      </div>
-
-      <div class="metrics-grid">
-        <div class="metric-box">
-          <span class="metric-title">Total Registros</span>
-          <span class="metric-number">3</span>
-          <span class="metric-foot">Clientes Muestra BD</span>
-        </div>
-        <div class="metric-box">
-          <span class="metric-title">Cuentas Activas</span>
-          <span class="metric-number text-success">100%</span>
-          <span class="metric-foot">Estado Operativo</span>
-        </div>
-        <div class="metric-box">
-          <span class="metric-title">Segmento Principal</span>
-          <span class="metric-number text-primary">VIP</span>
-          <span class="metric-foot">Categorización Negocio</span>
-        </div>
-      </div>
-
-      <ion-card class="analytics-card">
-        <ion-card-header>
-          <ion-card-title class="card-title-sm">
-            <ion-icon name="pie-chart-outline" class="mr-1"></ion-icon> Distribución por Género
-          </ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-          <div class="progress-item">
-            <div class="progress-labels">
-              <span>Masculino (Carlos, Juan)</span>
-              <strong>67%</strong>
-            </div>
-            <div class="bar-bg"><div class="bar-fill blue" style="width: 67%"></div></div>
-          </div>
-          <div class="progress-item">
-            <div class="progress-labels">
-              <span>Femenino (María Fernanda)</span>
-              <strong>33%</strong>
-            </div>
-            <div class="bar-bg"><div class="bar-fill pink" style="width: 33%"></div></div>
-          </div>
-        </ion-card-content>
-      </ion-card>
-    }
-
-    <!-- PESTAÑA 3: DIRECTORIO GENERAL DE CLIENTES -->
-    @if (tabActiva === 'directorio') {
-      <div class="hero-section">
-        <h1 class="hero-title">Directorio General</h1>
-        <p class="hero-subtitle">Seleccione un cliente para consultar su ficha 360° en la API</p>
-      </div>
-
-      <ion-card class="directory-card">
-        <ion-list lines="full">
-          @for (item of directorioSeed; track item.identificacion) {
-            <ion-item button (click)="seleccionarDelDirectorio(item.identificacion)">
-              <ion-icon name="person-outline" slot="start" color="primary"></ion-icon>
-              <ion-label>
-                <h2>{{ item.nombre }}</h2>
-                <p>Cédula: <strong>{{ item.identificacion }}</strong> | {{ item.email }}</p>
-              </ion-label>
-              <ion-badge slot="end" [color]="item.categoria === 'VIP' ? 'warning' : 'tertiary'">
-                {{ item.categoria }}
-              </ion-badge>
-              <ion-button slot="end" fill="clear" size="small">
-                <ion-icon name="eye-outline" slot="icon-only"></ion-icon>
-              </ion-button>
-            </ion-item>
+              <footer class="result-footer">
+                <button class="pill-button" type="button" (click)="limpiar()">
+                  <ion-icon name="refresh-outline" aria-hidden="true"></ion-icon>
+                  Limpiar
+                </button>
+              </footer>
+            </article>
           }
-        </ion-list>
-      </ion-card>
-    }
 
-  </div>
+          @if (!cargando && errorMensaje) {
+            <article class="card-apple result-card error-card">
+              <header class="card-header">
+                <h2 class="danger-text">
+                  <ion-icon name="warning-outline" aria-hidden="true"></ion-icon>
+                  Titular No Registrado (404)
+                </h2>
+              </header>
+              <div class="card-body error-content">
+                <ion-icon class="error-person" name="person-remove-outline" aria-hidden="true"></ion-icon>
+                <h3>Documento No Encontrado</h3>
+                <p>{{ errorMensaje }}</p>
+                <div class="technical-note">
+                  <ion-icon name="information-circle-outline" aria-hidden="true"></ion-icon>
+                  El Stored Procedure <code>sp_ObtenerClientePorIdentificacion</code> retornó cero registros para
+                  <strong>{{ identificacionConsultada }}</strong>.
+                </div>
+              </div>
+            </article>
+          }
+        </section>
+
+        <section class="tab-pane analytics-pane" [class.active]="tabActiva === 'analitica'">
+          <article class="card-apple chart-card">
+            <header class="card-header">
+              <h2>
+                <ion-icon name="pie-chart-outline" aria-hidden="true"></ion-icon>
+                Distribución por Género
+              </h2>
+            </header>
+            <div class="card-body chart-body">
+              <div
+                class="donut-chart"
+                role="img"
+                [style.background]="donutBackground"
+                [attr.aria-label]="analitica.hombres + ' hombres y ' + analitica.mujeres + ' mujeres'">
+                <div class="donut-center">
+                  <strong>{{ analitica.total | number:'1.0-0' }}</strong>
+                  <span>Titulares</span>
+                </div>
+              </div>
+              <div class="chart-legend">
+                <span>
+                  <i class="legend-dot blue-dot"></i>
+                  Hombres ({{ analitica.porcentajeHombres | number:'1.1-1' }}%)
+                </span>
+                <span>
+                  <i class="legend-dot purple-dot"></i>
+                  Mujeres ({{ analitica.porcentajeMujeres | number:'1.1-1' }}%)
+                </span>
+              </div>
+            </div>
+          </article>
+
+          <article class="card-apple chart-card">
+            <header class="card-header">
+              <h2>
+                <ion-icon name="bar-chart-outline" aria-hidden="true"></ion-icon>
+                Estado Operativo de Cuentas
+              </h2>
+            </header>
+            <div
+              class="card-body bar-chart"
+              role="img"
+              [attr.aria-label]="analitica.activos + ' activos, ' + analitica.inactivos + ' inactivos y ' + analitica.enValidacion + ' en validación'">
+              <div class="bar-column">
+                <span class="bar-value">{{ analitica.activos | number:'1.0-0' }}</span>
+                <div class="bar-track"><i class="bar active-bar" [style.height.%]="alturasEstado.activos"></i></div>
+                <span>Activos</span>
+              </div>
+              <div class="bar-column">
+                <span class="bar-value">{{ analitica.inactivos | number:'1.0-0' }}</span>
+                <div class="bar-track"><i class="bar inactive-bar" [style.height.%]="alturasEstado.inactivos"></i></div>
+                <span>Inactivos</span>
+              </div>
+              <div class="bar-column">
+                <span class="bar-value">{{ analitica.enValidacion | number:'1.0-0' }}</span>
+                <div class="bar-track"><i class="bar validation-bar" [style.height.%]="alturasEstado.enValidacion"></i></div>
+                <span>Validación</span>
+              </div>
+            </div>
+          </article>
+        </section>
+
+        <section class="tab-pane directory-pane" [class.active]="tabActiva === 'directorio'">
+          <article class="card-apple directory-card">
+            <header class="card-header result-header">
+              <h2>
+                <ion-icon name="book-outline" aria-hidden="true"></ion-icon>
+                Directorio General
+              </h2>
+              <span class="metric-badge badge-blue">
+                @if (cargandoDirectorio) {
+                  Cargando...
+                } @else {
+                  {{ clientes.length }} registros
+                }
+              </span>
+            </header>
+
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Identificación</th>
+                    <th>Nombre Completo</th>
+                    <th class="email-column">Email</th>
+                    <th>Estado</th>
+                    <th class="action-column">Acción</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @if (cargandoDirectorio) {
+                    <tr>
+                      <td class="directory-state" colspan="5">Consultando clientes...</td>
+                    </tr>
+                  } @else if (errorDirectorio) {
+                    <tr>
+                      <td class="directory-state danger-text" colspan="5">{{ errorDirectorio }}</td>
+                    </tr>
+                  } @else {
+                  @for (item of clientesPaginados; track item.identificacion) {
+                    <tr>
+                      <td><strong>{{ item.identificacion }}</strong></td>
+                      <td>{{ item.nombre }}</td>
+                      <td class="email-column email-value">{{ item.email }}</td>
+                      <td>
+                        <span
+                          class="status-badge"
+                          [class.status-inactive]="item.estado === 'Inactivo'"
+                          [class.status-validation]="item.estado === 'Validación'">
+                          {{ item.estado }}
+                        </span>
+                      </td>
+                      <td class="action-column">
+                        <button class="pill-button view-button" type="button" (click)="seleccionarDelDirectorio(item.identificacion)">
+                          <ion-icon name="eye-outline" aria-hidden="true"></ion-icon>
+                          Ver
+                        </button>
+                      </td>
+                    </tr>
+                  }
+                  }
+                </tbody>
+              </table>
+            </div>
+
+            @if (!cargandoDirectorio && !errorDirectorio && clientes.length > 0) {
+              <nav class="table-pagination" aria-label="Paginación del directorio">
+                <span class="pagination-summary">
+                  Mostrando {{ primerRegistroVisible }}-{{ ultimoRegistroVisible }} de {{ clientes.length }}
+                </span>
+                <div class="pagination-actions">
+                  <button
+                    type="button"
+                    (click)="cambiarPagina(paginaActual - 1)"
+                    [disabled]="paginaActual === 1">
+                    Anterior
+                  </button>
+                  @for (pagina of paginasDisponibles; track pagina) {
+                    <button
+                      class="page-button"
+                      type="button"
+                      [class.active]="pagina === paginaActual"
+                      [attr.aria-current]="pagina === paginaActual ? 'page' : null"
+                      [attr.aria-label]="'Página ' + pagina"
+                      (click)="cambiarPagina(pagina)">
+                      {{ pagina }}
+                    </button>
+                  }
+                  <button
+                    type="button"
+                    (click)="cambiarPagina(paginaActual + 1)"
+                    [disabled]="paginaActual === totalPaginas">
+                    Siguiente
+                  </button>
+                </div>
+              </nav>
+            }
+          </article>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <footer class="app-footer" aria-label="Pie de página">
+    <strong>Cavipetrol</strong> © 2026 | Arquitectura Data-First diseñada para Sr. Wolfan.
+  </footer>
+  <div class="mobile-scroll-spacer" aria-hidden="true"></div>
 </ion-content>
 
-<!-- BARRA INFERIOR DE PESTAÑAS (IONIC TAB BAR NATIVE PARADIGM) -->
-<ion-tab-bar slot="bottom" class="custom-tab-bar">
-  <ion-tab-button (click)="cambiarTab('busqueda')" [class.tab-selected]="tabActiva === 'busqueda'">
-    <ion-icon name="search-outline"></ion-icon>
-    <ion-label>Búsqueda</ion-label>
-  </ion-tab-button>
-
-  <ion-tab-button (click)="cambiarTab('analitica')" [class.tab-selected]="tabActiva === 'analitica'">
-    <ion-icon name="stats-chart-outline"></ion-icon>
-    <ion-label>Analítica</ion-label>
-  </ion-tab-button>
-
-  <ion-tab-button (click)="cambiarTab('directorio')" [class.tab-selected]="tabActiva === 'directorio'">
-    <ion-icon name="book-outline"></ion-icon>
-    <ion-label>Directorio</ion-label>
-  </ion-tab-button>
-</ion-tab-bar>
+<nav class="apple-tab-bar" aria-label="Navegación principal">
+  <button type="button" [class.active]="tabActiva === 'busqueda'" (click)="cambiarTab('busqueda')">
+    <ion-icon name="search-outline" aria-hidden="true"></ion-icon>
+    <span>Búsqueda</span>
+  </button>
+  <button type="button" [class.active]="tabActiva === 'analitica'" (click)="cambiarTab('analitica')">
+    <ion-icon name="pie-chart-outline" aria-hidden="true"></ion-icon>
+    <span>Analítica</span>
+  </button>
+  <button type="button" [class.active]="tabActiva === 'directorio'" (click)="cambiarTab('directorio')">
+    <ion-icon name="book-outline" aria-hidden="true"></ion-icon>
+    <span>Directorio</span>
+  </button>
+</nav>

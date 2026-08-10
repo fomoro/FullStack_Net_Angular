@@ -1,45 +1,70 @@
-import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
-  IonHeader,
-  IonToolbar,
-  IonTitle,
   IonContent,
-  IonSearchbar,
-  IonCard,
-  IonCardHeader,
-  IonCardSubtitle,
-  IonCardTitle,
-  IonCardContent,
-  IonBadge,
-  IonSpinner,
-  IonButton,
+  IonHeader,
   IonIcon,
-  IonItem,
-  IonLabel,
-  IonList,
-  IonNote,
-  IonTabBar,
-  IonTabButton
+  IonSpinner,
+  IonToolbar
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
-  searchOutline,
-  personOutline,
-  mailOutline,
-  calendarOutline,
-  idCardOutline,
   alertCircleOutline,
-  checkmarkCircleOutline,
-  pieChartOutline,
+  barChartOutline,
   bookOutline,
+  checkmarkCircleOutline,
   eyeOutline,
-  arrowBackOutline,
-  statsChartOutline
+  femaleOutline,
+  flashOutline,
+  informationCircleOutline,
+  layersOutline,
+  maleOutline,
+  peopleOutline,
+  personAddOutline,
+  personCircleOutline,
+  personRemoveOutline,
+  phonePortraitOutline,
+  pieChartOutline,
+  refreshOutline,
+  searchOutline,
+  trendingUpOutline,
+  warningOutline
 } from 'ionicons/icons';
-import { ClienteService } from '../../services/cliente.service';
 import { ClienteDto } from '../../models/cliente.model';
+import { ClienteService } from '../../services/cliente.service';
+
+type TabClientes = 'busqueda' | 'analitica' | 'directorio';
+
+interface ResumenAnalitico {
+  total: number;
+  activos: number;
+  inactivos: number;
+  enValidacion: number;
+  hombres: number;
+  mujeres: number;
+  porcentajeActivos: number;
+  porcentajeHombres: number;
+  porcentajeMujeres: number;
+}
+
+interface AlturasEstado {
+  activos: number;
+  inactivos: number;
+  enValidacion: number;
+}
+
+const ANALITICA_VACIA: ResumenAnalitico = {
+  total: 0,
+  activos: 0,
+  inactivos: 0,
+  enValidacion: 0,
+  hombres: 0,
+  mujeres: 0,
+  porcentajeActivos: 0,
+  porcentajeHombres: 0,
+  porcentajeMujeres: 0
+};
 
 @Component({
   selector: 'app-cliente-search',
@@ -47,107 +72,214 @@ import { ClienteDto } from '../../models/cliente.model';
   imports: [
     CommonModule,
     FormsModule,
-    IonHeader,
-    IonToolbar,
-    IonTitle,
     IonContent,
-    IonSearchbar,
-    IonCard,
-    IonCardHeader,
-    IonCardSubtitle,
-    IonCardTitle,
-    IonCardContent,
-    IonBadge,
-    IonSpinner,
-    IonButton,
+    IonHeader,
     IonIcon,
-    IonItem,
-    IonLabel,
-    IonList,
-    IonNote,
-    IonTabBar,
-    IonTabButton
+    IonSpinner,
+    IonToolbar
   ],
   templateUrl: './cliente-search.component.html',
   styleUrls: ['./cliente-search.component.css']
 })
-export class ClienteSearchComponent {
-  private clienteService = inject(ClienteService);
+export class ClienteSearchComponent implements OnInit {
+  private readonly clienteService = inject(ClienteService);
 
-  tabActiva: 'busqueda' | 'analitica' | 'directorio' = 'busqueda';
-
-  identificacion: string = '';
+  tabActiva: TabClientes = 'busqueda';
+  identificacion = '';
+  identificacionConsultada = '';
   cliente: ClienteDto | null = null;
-  cargando: boolean = false;
-  errorMensaje: string = '';
-  busquedaRealizada: boolean = false;
-
-  // Datos para vista de Directorio General
-  directorioSeed = [
-    { identificacion: '12345678', nombre: 'Carlos Mendoza', email: 'carlos.mendoza@cavipetrol.com', estado: 'Activo', categoria: 'VIP' },
-    { identificacion: '10987654', nombre: 'María Fernanda Gómez', email: 'maria.gomez@cavipetrol.com', estado: 'Activo', categoria: 'Frecuente' },
-    { identificacion: '11223344', nombre: 'Juan Pablo Martínez', email: 'juan.martinez@cavipetrol.com', estado: 'Activo', categoria: 'Estándar' }
-  ];
+  clientes: ClienteDto[] = [];
+  readonly registrosPorPagina = 10;
+  paginaActual = 1;
+  analitica: ResumenAnalitico = { ...ANALITICA_VACIA };
+  alturasEstado: AlturasEstado = { activos: 0, inactivos: 0, enValidacion: 0 };
+  donutBackground = 'conic-gradient(#0071e3 0 50%, #af52de 50% 100%)';
+  cargando = false;
+  cargandoDirectorio = true;
+  errorMensaje = '';
+  errorDirectorio = '';
 
   constructor() {
     addIcons({
-      searchOutline,
-      personOutline,
-      mailOutline,
-      calendarOutline,
-      idCardOutline,
       alertCircleOutline,
-      checkmarkCircleOutline,
-      pieChartOutline,
+      barChartOutline,
       bookOutline,
+      checkmarkCircleOutline,
       eyeOutline,
-      arrowBackOutline,
-      statsChartOutline
+      femaleOutline,
+      flashOutline,
+      informationCircleOutline,
+      layersOutline,
+      maleOutline,
+      peopleOutline,
+      personAddOutline,
+      personCircleOutline,
+      personRemoveOutline,
+      phonePortraitOutline,
+      pieChartOutline,
+      refreshOutline,
+      searchOutline,
+      trendingUpOutline,
+      warningOutline
     });
   }
 
-  cambiarTab(tab: 'busqueda' | 'analitica' | 'directorio'): void {
+  ngOnInit(): void {
+    this.cargarDirectorio();
+  }
+
+  get totalPaginas(): number {
+    return Math.ceil(this.clientes.length / this.registrosPorPagina);
+  }
+
+  get paginasDisponibles(): number[] {
+    return Array.from({ length: this.totalPaginas }, (_, indice) => indice + 1);
+  }
+
+  get clientesPaginados(): ClienteDto[] {
+    const inicio = (this.paginaActual - 1) * this.registrosPorPagina;
+    return this.clientes.slice(inicio, inicio + this.registrosPorPagina);
+  }
+
+  get primerRegistroVisible(): number {
+    return this.clientes.length === 0 ? 0 : (this.paginaActual - 1) * this.registrosPorPagina + 1;
+  }
+
+  get ultimoRegistroVisible(): number {
+    return Math.min(this.paginaActual * this.registrosPorPagina, this.clientes.length);
+  }
+
+  cambiarTab(tab: TabClientes): void {
     this.tabActiva = tab;
   }
 
-  buscarCliente(): void {
-    if (!this.identificacion || this.identificacion.trim() === '') {
-      this.errorMensaje = 'Por favor ingrese un número de identificación válido.';
-      this.cliente = null;
+  cambiarPagina(pagina: number): void {
+    if (pagina < 1 || pagina > this.totalPaginas || pagina === this.paginaActual) {
       return;
     }
 
-    this.cargando = true;
-    this.errorMensaje = '';
-    this.cliente = null;
-    this.busquedaRealizada = true;
-
-    this.clienteService.obtenerPorIdentificacion(this.identificacion.trim()).subscribe({
-      next: (response) => {
-        this.cargando = false;
-        if (response.exito && response.datos) {
-          this.cliente = response.datos;
-        } else {
-          this.errorMensaje = response.mensaje || 'No se encontraron datos del cliente.';
-        }
-      },
-      error: (err: Error) => {
-        this.cargando = false;
-        this.errorMensaje = err.message;
-      }
-    });
+    this.paginaActual = pagina;
   }
 
-  seleccionarDelDirectorio(id: string): void {
-    this.identificacion = id;
+  buscarDemo(identificacion: string): void {
+    this.identificacion = identificacion;
     this.tabActiva = 'busqueda';
     this.buscarCliente();
   }
 
+  buscarCliente(): void {
+    const identificacion = this.identificacion.trim();
+
+    if (!identificacion) {
+      this.errorMensaje = 'Por favor ingrese un número de identificación válido.';
+      this.identificacionConsultada = '';
+      this.cliente = null;
+      return;
+    }
+
+    this.prepararBusqueda(identificacion);
+
+    this.clienteService.obtenerPorIdentificacion(identificacion).subscribe({
+      next: (response) => this.procesarRespuestaBusqueda(response.exito, response.datos, response.mensaje),
+      error: (error: Error) => {
+        this.cargando = false;
+        this.errorMensaje = error.message;
+      }
+    });
+  }
+
+  seleccionarDelDirectorio(identificacion: string): void {
+    this.buscarDemo(identificacion);
+  }
+
   limpiar(): void {
     this.identificacion = '';
+    this.identificacionConsultada = '';
     this.cliente = null;
     this.errorMensaje = '';
-    this.busquedaRealizada = false;
+  }
+
+  private cargarDirectorio(): void {
+    this.clienteService.obtenerTodos().subscribe({
+      next: (response) => {
+        this.cargandoDirectorio = false;
+        this.clientes = response.datos ?? [];
+        this.paginaActual = 1;
+        this.actualizarAnalitica(this.clientes);
+      },
+      error: (error: Error) => {
+        this.cargandoDirectorio = false;
+        this.errorDirectorio = error.message;
+        this.actualizarAnalitica([]);
+      }
+    });
+  }
+
+  private prepararBusqueda(identificacion: string): void {
+    this.identificacion = identificacion;
+    this.identificacionConsultada = identificacion;
+    this.cargando = true;
+    this.errorMensaje = '';
+    this.cliente = null;
+  }
+
+  private procesarRespuestaBusqueda(exito: boolean, datos: ClienteDto | undefined, mensaje: string): void {
+    this.cargando = false;
+
+    if (exito && datos) {
+      this.cliente = datos;
+      return;
+    }
+
+    this.errorMensaje = mensaje || 'No se encontraron datos del cliente.';
+  }
+
+  private actualizarAnalitica(clientes: ClienteDto[]): void {
+    const total = clientes.length;
+    const activos = clientes.filter(cliente => cliente.estado.toLowerCase() === 'activo').length;
+    const inactivos = clientes.filter(cliente => cliente.estado.toLowerCase() === 'inactivo').length;
+    const enValidacion = clientes.filter(cliente => cliente.estado.toLowerCase() === 'validación').length;
+    const hombres = clientes.filter(cliente => cliente.genero === 'M').length;
+    const mujeres = clientes.filter(cliente => cliente.genero === 'F').length;
+
+    this.analitica = {
+      total,
+      activos,
+      inactivos,
+      enValidacion,
+      hombres,
+      mujeres,
+      porcentajeActivos: this.calcularPorcentaje(activos, total),
+      porcentajeHombres: this.calcularPorcentaje(hombres, total),
+      porcentajeMujeres: this.calcularPorcentaje(mujeres, total)
+    };
+
+    this.actualizarGraficas();
+  }
+
+  private actualizarGraficas(): void {
+    const maximoEstado = Math.max(
+      this.analitica.activos,
+      this.analitica.inactivos,
+      this.analitica.enValidacion,
+      1
+    );
+
+    this.alturasEstado = {
+      activos: this.calcularAltura(this.analitica.activos, maximoEstado),
+      inactivos: this.calcularAltura(this.analitica.inactivos, maximoEstado),
+      enValidacion: this.calcularAltura(this.analitica.enValidacion, maximoEstado)
+    };
+
+    const hombres = this.analitica.porcentajeHombres;
+    this.donutBackground = `conic-gradient(#0071e3 0 ${hombres}%, #af52de ${hombres}% 100%)`;
+  }
+
+  private calcularPorcentaje(cantidad: number, total: number): number {
+    return total === 0 ? 0 : cantidad * 100 / total;
+  }
+
+  private calcularAltura(cantidad: number, maximo: number): number {
+    return cantidad === 0 ? 0 : Math.max(8, cantidad * 96 / maximo);
   }
 }

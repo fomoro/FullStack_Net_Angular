@@ -20,6 +20,18 @@ public class ClientesController : ControllerBase
     }
 
     /// <summary>
+    /// Obtiene todos los clientes disponibles en el proveedor configurado.
+    /// </summary>
+    [HttpGet]
+    [ProducesResponseType(typeof(ApiResponse<IReadOnlyCollection<ClienteDto>>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<ApiResponse<IReadOnlyCollection<ClienteDto>>>> ObtenerTodos(
+        CancellationToken cancellationToken)
+    {
+        var resultado = await _clienteService.ObtenerTodosAsync(cancellationToken);
+        return Ok(resultado);
+    }
+
+    /// <summary>
     /// Consulta la información de un cliente por su número de identificación.
     /// </summary>
     /// <param name="identificacion">Número de cédula o documento del cliente</param>

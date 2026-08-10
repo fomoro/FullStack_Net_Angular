@@ -18,6 +18,17 @@ public class ClienteService : IClienteService
         _repository = repository ?? throw new ArgumentNullException(nameof(repository));
     }
 
+    public async Task<ApiResponse<IReadOnlyCollection<ClienteDto>>> ObtenerTodosAsync(
+        CancellationToken cancellationToken = default)
+    {
+        var clientes = await _repository.ObtenerTodosAsync(cancellationToken);
+        var datos = clientes.Select(MapearADto).ToArray();
+
+        return ApiResponse<IReadOnlyCollection<ClienteDto>>.Exitoso(
+            datos,
+            $"Se consultaron {datos.Length} clientes exitosamente");
+    }
+
     public async Task<ApiResponse<ClienteDto>> ObtenerPorIdentificacionAsync(string identificacion, CancellationToken cancellationToken = default)
     {
         // Guard Clause: Validación de precondición

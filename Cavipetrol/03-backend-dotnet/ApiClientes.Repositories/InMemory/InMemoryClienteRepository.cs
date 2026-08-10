@@ -8,8 +8,10 @@ namespace ApiClientes.Repositories.InMemory;
 /// </summary>
 public class InMemoryClienteRepository : IClienteRepository
 {
-    private static readonly List<Cliente> _clientesSeed = new()
-    {
+    private const int CantidadClientesDemo = 30;
+
+    private static readonly IReadOnlyList<Cliente> ClientesPrincipales =
+    [
         new Cliente
         {
             IdCliente = 1,
@@ -52,11 +54,61 @@ public class InMemoryClienteRepository : IClienteRepository
             Estado = "Activo",
             Categoria = "Estándar"
         }
-    };
+    ];
+
+    private static readonly IReadOnlyList<Cliente> _clientesSeed = ClientesPrincipales
+        .Concat(CrearClientesGenerados())
+        .ToArray();
+
+    public Task<IReadOnlyCollection<Cliente>> ObtenerTodosAsync(CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        return Task.FromResult<IReadOnlyCollection<Cliente>>(_clientesSeed);
+    }
 
     public Task<Cliente?> ObtenerPorIdentificacionAsync(string identificacion, CancellationToken cancellationToken = default)
     {
         var cliente = _clientesSeed.FirstOrDefault(c => string.Equals(c.Identificacion, identificacion, StringComparison.OrdinalIgnoreCase));
         return Task.FromResult(cliente);
+    }
+
+    private static IReadOnlyCollection<Cliente> CrearClientesGenerados()
+    {
+        return Enumerable.Range(4, CantidadClientesDemo - ClientesPrincipales.Count)
+            .Select(id => new Cliente
+            {
+                IdCliente = id,
+                Identificacion = $"100000{id:D2}",
+                Nombre = $"Cliente {id:D2}",
+                Apellido = "Demostración",
+                Email = $"cliente{id:D2}@cavipetrol.com",
+                FechaCreacion = new DateTime(2026, 1, 1, 8, 0, 0, DateTimeKind.Utc).AddDays(id),
+                FechaActualizacion = id % 4 == 0 ? new DateTime(2026, 7, 1, 8, 0, 0, DateTimeKind.Utc).AddDays(id) : null,
+                Genero = id % 2 == 0 ? 'M' : 'F',
+                FechaNacimiento = new DateTime(1980 + id % 25, id % 12 + 1, id % 27 + 1),
+                Estado = ObtenerEstadoDemo(id),
+                Categoria = ObtenerCategoriaDemo(id)
+            })
+            .ToArray();
+    }
+
+    private static string ObtenerEstadoDemo(int id)
+    {
+        return id switch
+        {
+            10 or 20 => "Inactivo",
+            15 or 30 => "Validación",
+            _ => "Activo"
+        };
+    }
+
+    private static string ObtenerCategoriaDemo(int id)
+    {
+        if (id % 7 == 0)
+        {
+            return "VIP";
+        }
+
+        return id % 3 == 0 ? "Frecuente" : "Estándar";
     }
 }

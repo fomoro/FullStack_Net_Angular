@@ -18,6 +18,14 @@ public class SqlServerClienteRepository : IClienteRepository
         _context = context ?? throw new ArgumentNullException(nameof(context));
     }
 
+    public async Task<IReadOnlyCollection<Cliente>> ObtenerTodosAsync(CancellationToken cancellationToken = default)
+    {
+        return await _context.Clientes
+            .AsNoTracking()
+            .OrderBy(cliente => cliente.IdCliente)
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<Cliente?> ObtenerPorIdentificacionAsync(string identificacion, CancellationToken cancellationToken = default)
     {
         var param = new SqlParameter("@Identificacion", identificacion);

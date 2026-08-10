@@ -7,5 +7,6 @@ namespace ApiClientes.Services.Ports.Inbound;
 /// </summary>
 public interface IClienteService
 {
+    Task<ApiResponse<IReadOnlyCollection<ClienteDto>>> ObtenerTodosAsync(CancellationToken cancellationToken = default);
     Task<ApiResponse<ClienteDto>> ObtenerPorIdentificacionAsync(string identificacion, CancellationToken cancellationToken = default);
 }

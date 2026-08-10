@@ -7,5 +7,6 @@ namespace ApiClientes.Services.Ports.Outbound;
 /// </summary>
 public interface IClienteRepository
 {
+    Task<IReadOnlyCollection<Cliente>> ObtenerTodosAsync(CancellationToken cancellationToken = default);
     Task<Cliente?> ObtenerPorIdentificacionAsync(string identificacion, CancellationToken cancellationToken = default);
 }
