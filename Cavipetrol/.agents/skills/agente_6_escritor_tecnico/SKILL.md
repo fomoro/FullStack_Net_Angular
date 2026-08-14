@@ -1,4 +1,4 @@
- ---
+---
 name: Escritor_Tecnico
 description: Se activa al trabajar en la carpeta docs/ o al redactar el README.md en la raíz del proyecto.
 ---
